@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import { spacing } from '@material-ui/system';
 import { TextField, Typography, Button, Card, CardActions, CardContent , Grid } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
+import { addPost, getPost } from "../redux/action"
+import _ from "lodash";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -32,7 +34,11 @@ const Home = () => {
     const classes = useStyles();
     const posts = useSelector(state=>state.posts)
     const dispatch = useDispatch();
-    const [values, setValues] = React.useState({});
+    const [values, setValues] = React.useState(initialValues);
+    console.log(posts)
+    useEffect(()=>{
+      dispatch(getPost())
+    },[])
 
     const handleChange = (e) => {
         const { name, value } = e.currentTarget;
@@ -41,7 +47,20 @@ const Home = () => {
     
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("submitted", values)
+        console.log("submitted", values);
+        dispatch(addPost(values));
+        console.log("2")
+    }
+
+    const renderPost = () => {
+       return _.map(posts, (post, key)=>{
+         console.log(post.title)
+         return (
+         <React.Fragment>
+           <p>{post.title}</p>
+         </React.Fragment>
+         )
+      })
     }
    
     return (
@@ -72,16 +91,15 @@ const Home = () => {
             justify="space-evenly"
             alignItems="center"
             > 
-            {posts.map(post => {(
+            {posts.map(post => (
                 <Grid item xs={12} sm={6}>
                 <Card className={classes.cardRoot} variant="outlined">
                   <CardContent>
                     <Typography className={classes.cardTitle} color="textSecondary" gutterBottom>
-                      Word of the Day
+                     {post.title}
                     </Typography>
-                    <Typography className={classes.pos} color="textSecondary">adjective</Typography>
-                    <Typography variant="body2" component="p">well meaning and kindly.
-                      <br />{'"a benevolent smile"'}</Typography>
+                    <Typography className={classes.pos} color="textSecondary">{renderPost()}</Typography>
+                    <Typography variant="body2" component="span">{renderPost()}</Typography>
                   </CardContent>
                   <CardActions>
                     <Button size="small" color="primary">Update</Button>
@@ -89,7 +107,7 @@ const Home = () => {
                   </CardActions>
                 </Card>
                 </Grid>
-            )})}
+            ))}
           </Grid>
       </div>
     );

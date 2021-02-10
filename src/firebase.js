@@ -1,16 +1,24 @@
-import * as firebase from "firebase";
-
-// <!-- The core Firebase JS SDK is always required and must be listed first -->
-// <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
-
-// <!-- TODO: Add SDKs for Firebase products that you want to use
-//      https://firebase.google.com/docs/web/setup#available-libraries -->
-// <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-analytics.js"></script>
+// import * as firebase from "firebase";
+import firebase from "firebase/app";
+require('firebase/database');
 
 
-  var firebaseConfig = {
-    
+  const firebaseConfig = {
+    apiKey: "AIzaSyC3yhmN00KSXasfY-VWvdBwuoS5WSz3JGI",
+    authDomain: "react-crud-fb58c.firebaseapp.com",
+    databaseURL: "https://react-crud-fb58c-default-rtdb.firebaseio.com",
+    projectId: "react-crud-fb58c",
+    storageBucket: "react-crud-fb58c.appspot.com",
+    messagingSenderId: "1002540042982",
+    appId: "1:1002540042982:web:ae8b90a2a4ffadba918927",
+    measurementId: "G-VGNSJKD59R" 
   };
-  // Initialize Firebase
+  // if (!firebase.apps.length) {
+  //   firebase.initializeApp(firebaseConfig);
+  // }
   firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
+  // firebase.analytics();
+
+const database = firebase.database().ref("/crud");
+
+export { firebase, database };

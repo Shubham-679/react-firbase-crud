@@ -1,11 +1,12 @@
 import { combineReducers } from "redux";
+import { firebaseReducer } from 'react-redux-firebase'
 
 function postReducer(state = [], action) {
     switch (action.type) {
       case 'ADD_POST':
-        return  []
+        return  [action.payload]
       case 'GET_POST':
-        return []
+        return [action.payload]
       case 'UPDATE_POST':
         return  []
       case 'REMOVE_POST':
@@ -16,5 +17,6 @@ function postReducer(state = [], action) {
   }
 
   export default combineReducers({
-      posts : postReducer
+      posts : postReducer,
+      firebase: firebaseReducer
   })
