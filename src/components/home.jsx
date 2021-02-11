@@ -1,116 +1,158 @@
-import React, {useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
-import { spacing } from '@material-ui/system';
-import { TextField, Typography, Button, Card, CardActions, CardContent , Grid } from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
-import { addPost, getPost } from "../redux/action"
+import { TextField, Button, Grid, CardContent, Card, CardActions, Typography, Box } from "@material-ui/core";
+import { useDispatch, connect } from "react-redux";
+import { addPost, getPost, removePost } from "../redux/action"
 import _ from "lodash";
+import Post from "./post";
+import {Link} from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        '& > *': {
-            margin: theme.spacing(1),
-            width: '25ch',
-        },
+  root: {
+    '& > *': {
+      margin: theme.spacing(1),
+      width: '25ch',
     },
-    title: {
-        flexGrow: 1,
+  },
+  title: {
+    flexGrow: 1,
+  },
+  cardRoot: {
+    minWidth: 275,
+    marginTop: 25,
+    transition: theme.transitions.create(["background", "background-color"], {
+      duration: theme.transitions.duration.complex,
+    }),
+    "&:hover": {
+      backgroundColor: "#e0e2f4",
     },
-    cardRoot : {
-        maxWidth : 350,
-        marginTop:25
-    },
-      cardTitle: {
-        fontSize: 14,
-      },
-      pos: {
-        marginBottom: 12,
-      },
+  },
+  cardTitle: {
+    fontSize: 25,
+  },
+  err : {
+   padding : 65
+  }
 }));
 
-const initialValues = {title:'', description:''}
+const initialValues = { title: '', description: '' }
 
-const Home = () => {
-    const classes = useStyles();
-    const posts = useSelector(state=>state.posts)
-    const dispatch = useDispatch();
-    const [values, setValues] = React.useState(initialValues);
-    console.log(posts)
-    useEffect(()=>{
-      dispatch(getPost())
-    },[])
+const Home = (props) => {
+  const classes = useStyles();
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({});
+  const dispatch = useDispatch()
 
-    const handleChange = (e) => {
-        const { name, value } = e.currentTarget;
-        setValues({...values, [name]: value});
-      };
-    
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("submitted", values);
-        dispatch(addPost(values));
-        console.log("2")
-    }
+  useEffect(() => {
+    props.getPost()
+  }, [])
 
-    const renderPost = () => {
-       return _.map(posts, (post, key)=>{
-         console.log(post.title)
-         return (
-         <React.Fragment>
-           <p>{post.title}</p>
-         </React.Fragment>
-         )
-      })
-    }
-   
-    return (
-      <div>
-        {/* <Typography variant="h2" className={classes.title}>Blogs</Typography> */}
+  const validate = () => {
+    const errors = {};
+    if (values.title.trim() === "") errors.title = "Title is required !";
+    if (values.description.trim() === "") errors.description = "Description is required !";
+    return Object.keys(errors).length === 0 ? null : errors;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.currentTarget;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const er = validate();
+    setErrors((errors) => er || {});
+    if (er) return;
+    props.addPost(values);
+    setValues(initialValues)
+  }
+
+  const renderPost = () => {
+    return _.map(props.posts, (post, keys) => {
+      return (
+        <Post key={keys}>
+          <Card className={classes.cardRoot} variant="outlined" >
+            <CardContent>
+              <Typography className={classes.cardTitle} variant="body2"
+                component="span">{post.title}</Typography>
+              <Typography color="textSecondary" gutterBottom>
+                {post.description}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="small" color="primary">
+                <Link to={`/update/${keys}`}>Update</Link>
+                </Button>
+              <Button size="small" color="secondary"
+                onClick={() => dispatch(removePost(keys))}
+              >Remove</Button>
+            </CardActions>
+          </Card>
+        </Post>
+      )
+    })
+  }
+
+  return (
+    <div>
+      {/* <Typography variant="h2" className={classes.title}>Blogs</Typography> */}
+      <Box mt={4}>
         <form className={classes.root} noValidate autoComplete="off">
-          <TextField 
-            id="standard-basic" 
-            label="Title" 
+          <TextField
+            id="standard-basic"
+            label="Title"
             name="title"
+            required
+            multiline
+            rows={1}
             value={values.title}
-            onChange={handleChange}/>
-          <TextField 
-            id="standard-basic" 
-            label="Description" 
+            onChange={handleChange}
+            inputProps={{
+              maxLength: 20,
+            }}
+          />
+          
+          <TextField
+            id="standard-basic"
+            label="Description"
             name="description"
             multiline
+            required
             value={values.description}
-            onChange={handleChange} />
+            onChange={handleChange}
+            rows={1}
+            inputProps={{
+              maxLength: 100,
+            }}
+          />
         </form>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
+        {errors.title && (
+          <Typography className={classes.err} component="span" color="secondary" >{errors.title}</Typography>
+        )}
+        {errors.description && (
+          <Typography className={classes.err}  component="span" color="secondary">{errors.description}</Typography>
+        )}
+      </Box>
+      <Box mt={4}>
+        <Button variant="contained" color="primary" onClick={handleSubmit} mt={10}>
           Submit
         </Button>
-
-        <Grid
-            container
-            direction="row"
-            justify="space-evenly"
-            alignItems="center"
-            > 
-            {posts.map(post => (
-                <Grid item xs={12} sm={6}>
-                <Card className={classes.cardRoot} variant="outlined">
-                  <CardContent>
-                    <Typography className={classes.cardTitle} color="textSecondary" gutterBottom>
-                     {post.title}
-                    </Typography>
-                    <Typography className={classes.pos} color="textSecondary">{renderPost()}</Typography>
-                    <Typography variant="body2" component="span">{renderPost()}</Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary">Update</Button>
-                    <Button size="small" color="secondary">Remove</Button>
-                  </CardActions>
-                </Card>
-                </Grid>
-            ))}
-          </Grid>
-      </div>
-    );
+      </Box>
+      <Grid
+        container
+        direction="row"
+        justify="space-evenly"
+        alignItems="center"
+      >
+        {renderPost()}
+      </Grid>
+    </div>
+  );
 };
-
-export default Home;
+function mapStateToProps(state, ownProps) {
+  return {
+    posts: state.posts
+  };
+}
+export default connect(mapStateToProps, { getPost, addPost, removePost })(Home);

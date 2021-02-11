@@ -1,7 +1,5 @@
-// import * as firebase from "firebase";
 import firebase from "firebase/app";
 require('firebase/database');
-
 
   const firebaseConfig = {
     apiKey: "AIzaSyC3yhmN00KSXasfY-VWvdBwuoS5WSz3JGI",
@@ -13,12 +11,9 @@ require('firebase/database');
     appId: "1:1002540042982:web:ae8b90a2a4ffadba918927",
     measurementId: "G-VGNSJKD59R" 
   };
-  // if (!firebase.apps.length) {
-  //   firebase.initializeApp(firebaseConfig);
-  // }
-  firebase.initializeApp(firebaseConfig);
-  // firebase.analytics();
 
+  firebase.initializeApp(firebaseConfig);
+  
 const database = firebase.database().ref("/crud");
 
 export { firebase, database };
