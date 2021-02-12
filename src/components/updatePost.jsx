@@ -1,51 +1,68 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Typography, Box } from "@material-ui/core";
-import { useDispatch, connect } from "react-redux";
+import { connect } from "react-redux";
+import { updatePost,getPost } from "../redux/action"
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-      '& > *': {
-        margin: theme.spacing(1),
-        width: '25ch',
-      },
+  root: {
+    '& > *': {
+      margin: theme.spacing(1),
+      width: '25ch',
     },
-    err : {
-     padding : 65
-    }
-  }));
+  },
+  err: {
+    padding: 65
+  },
+  title: {
+    flexGrow: 1,
+  },
+}));
 
 const UpdatePost = (props) => {
 
-    const initialValues = { title: '', description: '' }
-    const classes = useStyles();
-    const [values, setValues] = useState(initialValues);
-    const [errors, setErrors] = useState({})
+  const initialValues = { title: props.post.title, description: props.post.description}
+  const classes = useStyles();
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({})
 
-    const validate = () => {
-        const errors = {};
-        if (values.title.trim() === "") errors.title = "Title is required !";
-        if (values.description.trim() === "") errors.description = "Description is required !";
-        return Object.keys(errors).length === 0 ? null : errors;
-      };
-    
-      const handleChange = (e) => {
-        const { name, value } = e.currentTarget;
-        setValues({ ...values, [name]: value });
-      };
-    
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        const er = validate();
-        setErrors((errors) => er || {});
-        if (er) return;
-        props.addPost(values);
-        setValues(initialValues)
-      }
-    return ( 
-        <div>
-            <h1>Update Page</h1>
-            <Box mt={4}>
+  // useEffect(()=>{
+  //   props.getPostById(props.match.params.id)
+  // },[])
+
+  const validate = () => {
+    const errors = {};
+    if (values.title !== undefined && values.description !== undefined){
+    if (values.title.trim() === "") errors.title = "Title is required !";
+    if (values.description.trim() === "") errors.description = "Description is required !";
+    return Object.keys(errors).length === 0 ? null : errors;
+  } else{
+    values.title = '';
+    values.description = ""
+    if (values.title.trim() === "") errors.title = "Title is required !";
+    if (values.description.trim() === "") errors.description = "Description is required !";
+    return Object.keys(errors).length === 0 ? null : errors;
+  }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.currentTarget;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const er = validate();
+    setErrors((errors) => er || {});
+    if (er) return;
+    props.updatePost(props.match.params.id, values);
+    setValues({title:'', description:''})
+    props.history.push("/");
+  }
+  return (
+    <div>
+      <Typography variant="h2" className={classes.title}>Update Your Post</Typography>
+      <Box mt={5}>
         <form className={classes.root} noValidate autoComplete="off">
           <TextField
             id="standard-basic"
@@ -60,7 +77,7 @@ const UpdatePost = (props) => {
               maxLength: 20,
             }}
           />
-          
+
           <TextField
             id="standard-basic"
             label="Description"
@@ -79,7 +96,7 @@ const UpdatePost = (props) => {
           <Typography className={classes.err} component="span" color="secondary" >{errors.title}</Typography>
         )}
         {errors.description && (
-          <Typography className={classes.err}  component="span" color="secondary">{errors.description}</Typography>
+          <Typography className={classes.err} component="span" color="secondary">{errors.description}</Typography>
         )}
       </Box>
       <Box mt={4}>
@@ -87,12 +104,10 @@ const UpdatePost = (props) => {
           Submit
         </Button>
       </Box>
-        </div>
-     );
+    </div>
+  );
 }
-function mapStateToProps(state, ownProps) {
-    return {
-      posts: state.posts
-    };
-  }
-export default connect(mapStateToProps, { })(UpdatePost);
+const mapStateToProps = (state, ownProps) => ({
+  post: state.posts[ownProps.match.params.id] || {},
+})
+export default connect(mapStateToProps, { updatePost,getPost})(UpdatePost);

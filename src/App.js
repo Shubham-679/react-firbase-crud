@@ -2,7 +2,7 @@ import { Route, Switch, Redirect} from 'react-router-dom';
 import './App.css';
 import Home from './components/home';
 import NavBar from './components/navbar';
-import updatePost from './components/updatePost';
+import UpdatePost from './components/updatePost';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <NavBar/>
         <Switch>
           <Route path="/home" component={Home}/>
-          <Route path="/update/:id" component={updatePost} exact/>
+          <Route path="/update/:id" component={UpdatePost}/>
           <Redirect from="/" to="/home" ></Redirect>
         </Switch>
       </main>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Grid, CardContent, Card, CardActions, Typography, Box } from "@material-ui/core";
-import { useDispatch, connect } from "react-redux";
+import { connect } from "react-redux";
 import { addPost, getPost, removePost } from "../redux/action"
 import _ from "lodash";
 import Post from "./post";
@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
   },
   err : {
    padding : 65
+  },
+  link : {
+    textDecoration : "none"
   }
 }));
 
@@ -41,7 +44,6 @@ const Home = (props) => {
   const classes = useStyles();
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
-  const dispatch = useDispatch()
 
   useEffect(() => {
     props.getPost()
@@ -82,10 +84,10 @@ const Home = (props) => {
             </CardContent>
             <CardActions>
               <Button size="small" color="primary">
-                <Link to={`/update/${keys}`}>Update</Link>
+                <Link className={classes.link} to={`/update/${keys}`}>Update</Link>
                 </Button>
               <Button size="small" color="secondary"
-                onClick={() => dispatch(removePost(keys))}
+                onClick={() => props.removePost(keys)}
               >Remove</Button>
             </CardActions>
           </Card>
@@ -150,7 +152,7 @@ const Home = (props) => {
     </div>
   );
 };
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
   return {
     posts: state.posts
   };
